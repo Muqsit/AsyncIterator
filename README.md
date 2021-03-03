@@ -36,7 +36,7 @@ By default, `AsyncIterator::forEach` traverses over 10 entries each tick. This c
 ```php
 $entries_per_tick = 4;
 $sleep_time = 1; // in ticks
-AsyncIterator::forEach(new InfiniteIterator(new ArrayIterator([1, 2, 3])), $entries_per_tick, $sleep_time)
+AsyncIterator::forEach(new InfiniteIterator(new ArrayIterator([1, 2, 3]), $entries_per_tick, $sleep_time)
 ->as(function(int $key, int $value) : AsyncForeachResult{
 	echo $value, ", ";
 	return AsyncForeachResult::CONTINUE();
@@ -75,7 +75,7 @@ However, when cancelled, a `forEach` task will notify no listeners and immediate
 $handler->forEach(new ArrayIterator([1, 2, 3]))
 ->as(function(int $key, int $value) : AsyncForeachResult{
 	echo $value;
-	return $value === 3 ? AsyncForeachResult::INTERRUPT() : AsyncForeachResult::CONTINUE();
+	return $value === 2 ? AsyncForeachResult::INTERRUPT() : AsyncForeachResult::CONTINUE();
 })
 ->onCompletion(function() : void{ echo "Completed"; })
 ->onInterruption(function() : void{ echo "Interrupted"; });
