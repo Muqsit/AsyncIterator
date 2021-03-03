@@ -14,6 +14,10 @@ use Iterator;
  */
 final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 
+	private const COMPLETION_CALLBACKS = 0;
+	private const INTERRUPTION_CALLBACKS = 1;
+	private const EMPTY_CALLBACKS = 2;
+
 	/**
 	 * @var Iterator
 	 * @phpstan-var Iterator<TKey, TValue>
@@ -26,8 +30,15 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	/** @var Closure[] */
 	private $callbacks = [];
 
-	/** @var Closure[] */
-	private $cancel_callbacks = [];
+	/** @var int */
+	private $finalization_type = self::COMPLETION_CALLBACKS;
+
+	/** @var Closure[][] */
+	private $finalization_callbacks = [
+		self::COMPLETION_CALLBACKS => [],
+		self::INTERRUPTION_CALLBACKS => [],
+		self::EMPTY_CALLBACKS => []
+	];
 
 	/**
 	 * @param Iterator $iterable
@@ -41,9 +52,14 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 		$iterable->rewind();
 	}
 
+	public function interrupt() : void{
+		$this->callbacks = [static function($key, $value) : bool{ return false; }];
+		$this->finalization_type = self::INTERRUPTION_CALLBACKS;
+	}
+
 	public function cancel() : void{
 		$this->callbacks = [static function($key, $value) : bool{ return false; }];
-		$this->cancel_callbacks = [];
+		$this->finalization_type = self::EMPTY_CALLBACKS;
 	}
 
 	public function handle() : bool{
@@ -66,7 +82,7 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	}
 
 	public function doCancel() : void{
-		foreach($this->cancel_callbacks as $callback){
+		foreach($this->finalization_callbacks[$this->finalization_type] as $callback){
 			$callback();
 		}
 	}
@@ -76,8 +92,18 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 		return $this;
 	}
 
-	public function then(Closure $callback) : AsyncForeachHandler{
-		$this->cancel_callbacks[spl_object_id($callback)] = $callback;
+	public function onCompletion(Closure $callback) : AsyncForeachHandler{
+		$this->finalization_callbacks[self::COMPLETION_CALLBACKS][spl_object_id($callback)] = $callback;
 		return $this;
+	}
+
+	public function onInterruption(Closure $callback) : AsyncForeachHandler{
+		$this->finalization_callbacks[self::INTERRUPTION_CALLBACKS][spl_object_id($callback)] = $callback;
+		return $this;
+	}
+
+	public function onCompletionOrInterruption(Closure $callback) : AsyncForeachHandler{
+		return $this->onCompletion($callback)
+			->onInterruption($callback);
 	}
 }
