@@ -10,17 +10,17 @@ $handler = new AsyncIterator($plugin->getScheduler());
 <hr>
 
 `AsyncIterator::forEach` traverses forward over an `Iterator` type and notifies handlers in the order of insertion.
-Handlers can be added to a `forEach` task by feeding a `Closure` to `AsyncIterator::forEach()::as()`, having the signature `function(TKey $key, TValue $value) : bool{}`.
+Handlers can be added to a `forEach` task by feeding a `Closure` to `AsyncIterator::forEach()::as()`, having the signature `function(TKey $key, TValue $value) : AsyncForeachResult`.
 
 ```php
 $handler->forEach(new ArrayIterator([1, 2]))
-->as(function(int $key, int $value) : bool{
+->as(function(int $key, int $value) : AsyncForeachResult{
 	echo "First ", $value;
-	return true;
+	return AsyncForeachResult::CONTINUE();
 })
-->as(function(int $key, int $value) : bool{
+->as(function(int $key, int $value) : AsyncForeachResult{
 	echo "Second ", $value;
-	return true;
+	return AsyncForeachResult::CONTINUE();
 });
 ```
 ```
@@ -37,9 +37,9 @@ By default, `AsyncIterator::forEach` traverses over 10 entries each tick. This c
 $entries_per_tick = 4;
 $sleep_time = 1; // in ticks
 AsyncIterator::forEach(new InfiniteIterator(new ArrayIterator([1, 2, 3])), $entries_per_tick, $sleep_time)
-->as(function(int $key, int $value) : bool{
+->as(function(int $key, int $value) : AsyncForeachResult{
 	echo $value, ", ";
-	return true;
+	return AsyncForeachResult::CONTINUE();
 });
 ```
 ```
@@ -58,23 +58,24 @@ Completion listeners are triggered when a foreach task successfully completes. T
 
 ```php
 $handler->forEach(new ArrayIterator([1, 2, 3]))
-->as(function(int $key, int $value) : bool{
+->as(function(int $key, int $value) : AsyncForeachResult{
 	echo $value;
-	return true;
+	return AsyncForeachResult::CONTINUE();
 })
 ->onCompletion(function() : void{ echo "Completed"; })
 ```
 
 <hr>
 
-Handlers have the ability to either continue or interrupt the traversal by returning either `true` or `false` respectively.
-When interrupted, a `forEach` task will not traverse the iterator anymore and notify interrupt listeners on it's __next run__.
+Handlers have the ability to either continue, interrupt or cancel the traversal by returning either `AsyncForeachResult::CONTINUE()`, `AsyncForeachResult::INTERRUPT()` or `AsyncForeachResult::CANCEL()` respectively.
+When interrupted, a `forEach` task will not traverse the iterator anymore and notify interrupt listeners immediately.
+However, when cancelled, a `forEach` task will notify no listeners and immediately dispose the task away.
 
 ```php
 $handler->forEach(new ArrayIterator([1, 2, 3]))
-->as(function(int $key, int $value) : bool{
+->as(function(int $key, int $value) : AsyncForeachResult{
 	echo $value;
-	return $value === 3 ? false : true;
+	return $value === 3 ? AsyncForeachResult::INTERRUPT() : AsyncForeachResult::CONTINUE();
 })
 ->onCompletion(function() : void{ echo "Completed"; })
 ->onInterruption(function() : void{ echo "Interrupted"; });
@@ -85,14 +86,12 @@ $handler->forEach(new ArrayIterator([1, 2, 3]))
 Interrupted
 ```
 
-<hr>
-
 ```php
 
 $handler->forEach(new ArrayIterator([1, 2, 3]))
-->as(function(int $key, int $value) : bool{
+->as(function(int $key, int $value) : AsyncForeachResult{
 	echo $value;
-	return true;
+	return AsyncForeachResult::CONTINUE();
 })
 ->onCompletion(function() : void{ echo "Completed"; })
 ->onInterruption(function() : void{ echo "Interrupted"; });
@@ -111,9 +110,9 @@ Interruption of a `forEach` task can also occur externally (outside the handler)
 ```php
 
 $foreach_task = $handler->forEach(new ArrayIterator([1, 2, 3]))
-->as(function(int $key, int $value) : bool{
+->as(function(int $key, int $value) : AsyncForeachResult{
 	echo $value;
-	return true;
+	return AsyncForeachResult::CONTINUE();
 })
 ->onCompletion(function() : void{ echo "Completed"; })
 ->onInterruption(function() : void{ echo "Interrupted"; });
@@ -134,9 +133,9 @@ A `forEach` task may be cancelled by calling the `cancel()` method on the return
 ```php
 
 $foreach_task = $handler->forEach(new ArrayIterator([1, 2, 3]))
-->as(function(int $key, int $value) : bool{
+->as(function(int $key, int $value) : AsyncForeachResult{
 	echo $value;
-	return true;
+	return AsyncForeachResult::CONTINUE();
 })
 ->onCompletion(function() : void{ echo "Completed"; })
 ->onInterruption(function() : void{ echo "Interrupted"; });

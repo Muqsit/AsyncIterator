@@ -20,6 +20,7 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 
 	/**
 	 * @var Iterator
+	 *
 	 * @phpstan-var Iterator<TKey, TValue>
 	 */
 	private $iterable;
@@ -27,13 +28,21 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	/** @var int */
 	private $entries_per_tick;
 
-	/** @var Closure[] */
+	/**
+	 * @var Closure[]
+	 *
+	 * @phpstan-var array<Closure(TKey, TValue) : AsyncForeachResult>
+	 */
 	private $callbacks = [];
 
 	/** @var int */
 	private $finalization_type = self::COMPLETION_CALLBACKS;
 
-	/** @var Closure[][] */
+	/**
+	 * @var Closure[][]
+	 *
+	 * @phpstan-var array<int, array<Closure() : void>>
+	 */
 	private $finalization_callbacks = [
 		self::COMPLETION_CALLBACKS => [],
 		self::INTERRUPTION_CALLBACKS => [],
@@ -53,25 +62,34 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	}
 
 	public function interrupt() : void{
-		$this->callbacks = [static function($key, $value) : bool{ return false; }];
+		$this->cancelNext();
 		$this->finalization_type = self::INTERRUPTION_CALLBACKS;
 	}
 
 	public function cancel() : void{
-		$this->callbacks = [static function($key, $value) : bool{ return false; }];
+		$this->cancelNext();
 		$this->finalization_type = self::EMPTY_CALLBACKS;
+	}
+
+	private function cancelNext() : void{
+		$this->callbacks = [static function($key, $value) : AsyncForeachResult{ return AsyncForeachResult::CANCEL(); }];
 	}
 
 	public function handle() : bool{
 		$per_run = $this->entries_per_tick;
 		while($this->iterable->valid()){
+			/** @phpstan-var TKey $key */
 			$key = $this->iterable->key();
+
+			/** @phpstan-var TValue $value */
 			$value = $this->iterable->current();
+
 			foreach($this->callbacks as $callback){
-				if(!$callback($key, $value)){
+				if(!$callback($key, $value)->handle($this)){
 					return false;
 				}
 			}
+
 			$this->iterable->next();
 			if(--$per_run === 0){
 				return true;
@@ -81,7 +99,7 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 		return false;
 	}
 
-	public function doCancel() : void{
+	public function doCompletion() : void{
 		foreach($this->finalization_callbacks[$this->finalization_type] as $callback){
 			$callback();
 		}

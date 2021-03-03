@@ -31,7 +31,7 @@ final class AsyncForeachTask extends Task{
 
 	public function onRun() : void{
 		if(!$this->async_foreach_handler->handle()){
-			$this->async_foreach_handler->doCancel();
+			$this->async_foreach_handler->doCompletion();
 			$task_handler = $this->getHandler();
 			if($task_handler !== null){
 				$task_handler->cancel();
