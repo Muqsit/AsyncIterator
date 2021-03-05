@@ -26,8 +26,8 @@ interface AsyncForeachHandler{
 	public function as(Closure $callback) : self;
 
 	/**
-	 * Stops the foreach task, scheduling interrupt listeners
-	 * to get triggered on the next task run.
+	 * Stops the foreach task, triggering interrupt listeners
+	 * immediately.
 	 */
 	public function interrupt() : void;
 
@@ -63,7 +63,7 @@ interface AsyncForeachHandler{
 	public function onInterruption(Closure $callback) : self;
 
 	/**
-	 * Called after the foreach task is interrupted.
+	 * Called after the foreach task is either completed or interrupted.
 	 *
 	 * @param Closure $callback
 	 * @return AsyncForeachHandler
