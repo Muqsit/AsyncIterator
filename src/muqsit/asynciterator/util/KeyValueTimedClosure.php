@@ -14,15 +14,10 @@ use pocketmine\timings\TimingsHandler;
  */
 final class KeyValueTimedClosure{
 
-	/** @var TimingsHandler */
-	private $timings;
+	private TimingsHandler $timings;
 
-	/**
-	 * @var Closure
-	 *
-	 * @phpstan-var Closure(T, U) : V
-	 */
-	public $closure;
+	/** @phpstan-var Closure(T, U) : V */
+	public Closure $closure;
 
 	/**
 	 * @param TimingsHandler $timings

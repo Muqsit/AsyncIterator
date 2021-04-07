@@ -14,11 +14,9 @@ use pocketmine\scheduler\Task;
 final class AsyncForeachTask extends Task{
 
 	/**
-	 * @var SimpleAsyncForeachHandler
-	 *
 	 * @phpstan-var SimpleAsyncForeachHandler<TKey, TValue>
 	 */
-	private $async_foreach_handler;
+	private SimpleAsyncForeachHandler $async_foreach_handler;
 
 	/**
 	 * @param SimpleAsyncForeachHandler $async_foreach_handler

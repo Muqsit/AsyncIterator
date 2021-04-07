@@ -9,15 +9,10 @@ use pocketmine\timings\TimingsHandler;
 
 final class EmptyTimedClosure{
 
-	/** @var TimingsHandler */
-	private $timings;
+	private TimingsHandler $timings;
 
-	/**
-	 * @var Closure
-	 *
-	 * @phpstan-var Closure() : void
-	 */
-	public $closure;
+	/** @phpstan-var Closure() : void */
+	public Closure $closure;
 
 	/**
 	 * @param TimingsHandler $timings

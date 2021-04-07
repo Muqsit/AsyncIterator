@@ -8,13 +8,10 @@ use muqsit\asynciterator\handler\AsyncForeachHandler;
 use muqsit\asynciterator\handler\SimpleAsyncForeachHandler;
 use Iterator;
 use pocketmine\scheduler\TaskScheduler;
-use pocketmine\timings\Timings;
-use pocketmine\timings\TimingsHandler;
 
 class AsyncIterator{
 
-	/** @var TaskScheduler */
-	private $scheduler;
+	private TaskScheduler $scheduler;
 
 	public function __construct(TaskScheduler $scheduler){
 		$this->scheduler = $scheduler;

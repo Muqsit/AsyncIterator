@@ -22,35 +22,28 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	private const INTERRUPTION_CALLBACKS = 1;
 	private const EMPTY_CALLBACKS = 2;
 
-	/** @var string */
-	private $timings_parent_name;
+	private string $timings_parent_name;
 
-	/**
-	 * @var Iterator
-	 *
-	 * @phpstan-var Iterator<TKey, TValue>
-	 */
-	private $iterable;
+	/** @phpstan-var Iterator<TKey, TValue> */
+	private Iterator $iterable;
 
-	/** @var int */
-	private $entries_per_tick;
+	private int $entries_per_tick;
 
 	/**
 	 * @var KeyValueTimedClosure[]
 	 *
 	 * @phpstan-var array<KeyValueTimedClosure<TKey, TValue, AsyncForeachResult>>
 	 */
-	private $callbacks = [];
+	private array $callbacks = [];
 
-	/** @var int */
-	private $finalization_type = self::COMPLETION_CALLBACKS;
+	private int $finalization_type = self::COMPLETION_CALLBACKS;
 
 	/**
 	 * @var EmptyTimedClosure[][]
 	 *
 	 * @phpstan-var array<int, array<EmptyTimedClosure>>
 	 */
-	private $finalization_callbacks = [
+	private array $finalization_callbacks = [
 		self::COMPLETION_CALLBACKS => [],
 		self::INTERRUPTION_CALLBACKS => [],
 		self::EMPTY_CALLBACKS => []
