@@ -6,6 +6,10 @@ namespace muqsit\asynciterator\handler;
 
 use Closure;
 use Iterator;
+use muqsit\asynciterator\util\EmptyTimedClosure;
+use muqsit\asynciterator\util\KeyValueTimedClosure;
+use pocketmine\timings\TimingsHandler;
+use pocketmine\utils\Utils;
 
 /**
  * @phpstan-template TKey
@@ -18,6 +22,9 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	private const INTERRUPTION_CALLBACKS = 1;
 	private const EMPTY_CALLBACKS = 2;
 
+	/** @var string */
+	private $timings_parent_name;
+
 	/**
 	 * @var Iterator
 	 *
@@ -29,9 +36,9 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	private $entries_per_tick;
 
 	/**
-	 * @var Closure[]
+	 * @var KeyValueTimedClosure[]
 	 *
-	 * @phpstan-var array<Closure(TKey, TValue) : AsyncForeachResult>
+	 * @phpstan-var array<KeyValueTimedClosure<TKey, TValue, AsyncForeachResult>>
 	 */
 	private $callbacks = [];
 
@@ -39,9 +46,9 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	private $finalization_type = self::COMPLETION_CALLBACKS;
 
 	/**
-	 * @var Closure[][]
+	 * @var EmptyTimedClosure[][]
 	 *
-	 * @phpstan-var array<int, array<Closure() : void>>
+	 * @phpstan-var array<int, array<EmptyTimedClosure>>
 	 */
 	private $finalization_callbacks = [
 		self::COMPLETION_CALLBACKS => [],
@@ -61,6 +68,10 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 		$iterable->rewind();
 	}
 
+	public function init(string $timings_parent_name) : void{
+		$this->timings_parent_name = $timings_parent_name;
+	}
+
 	public function interrupt() : void{
 		$this->cancelNext();
 		$this->finalization_type = self::INTERRUPTION_CALLBACKS;
@@ -72,7 +83,8 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	}
 
 	private function cancelNext() : void{
-		$this->callbacks = [static function($key, $value) : AsyncForeachResult{ return AsyncForeachResult::CANCEL(); }];
+		$this->callbacks = [];
+		$this->as(static function($key, $value) : AsyncForeachResult{ return AsyncForeachResult::CANCEL(); });
 	}
 
 	public function handle() : bool{
@@ -85,7 +97,7 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 			$value = $this->iterable->current();
 
 			foreach($this->callbacks as $callback){
-				if(!$callback($key, $value)->handle($this)){
+				if(!$callback->call($key, $value)->handle($this)){
 					return false;
 				}
 			}
@@ -101,22 +113,22 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 
 	public function doCompletion() : void{
 		foreach($this->finalization_callbacks[$this->finalization_type] as $callback){
-			$callback();
+			$callback->call();
 		}
 	}
 
 	public function as(Closure $callback) : AsyncForeachHandler{
-		$this->callbacks[spl_object_id($callback)] = $callback;
+		$this->callbacks[spl_object_id($callback)] = new KeyValueTimedClosure(new TimingsHandler("{$this->timings_parent_name}::as " . Utils::getNiceClosureName($callback)), $callback);
 		return $this;
 	}
 
 	public function onCompletion(Closure $callback) : AsyncForeachHandler{
-		$this->finalization_callbacks[self::COMPLETION_CALLBACKS][spl_object_id($callback)] = $callback;
+		$this->finalization_callbacks[self::COMPLETION_CALLBACKS][spl_object_id($callback)] = new EmptyTimedClosure(new TimingsHandler("{$this->timings_parent_name}::onCompletion " . Utils::getNiceClosureName($callback)), $callback);
 		return $this;
 	}
 
 	public function onInterruption(Closure $callback) : AsyncForeachHandler{
-		$this->finalization_callbacks[self::INTERRUPTION_CALLBACKS][spl_object_id($callback)] = $callback;
+		$this->finalization_callbacks[self::INTERRUPTION_CALLBACKS][spl_object_id($callback)] = new EmptyTimedClosure(new TimingsHandler("{$this->timings_parent_name}::onInterruption " . Utils::getNiceClosureName($callback)), $callback);
 		return $this;
 	}
 

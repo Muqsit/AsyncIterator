@@ -8,6 +8,8 @@ use muqsit\asynciterator\handler\AsyncForeachHandler;
 use muqsit\asynciterator\handler\SimpleAsyncForeachHandler;
 use Iterator;
 use pocketmine\scheduler\TaskScheduler;
+use pocketmine\timings\Timings;
+use pocketmine\timings\TimingsHandler;
 
 class AsyncIterator{
 
@@ -31,7 +33,8 @@ class AsyncIterator{
 	 */
 	public function forEach(Iterator $iterable, int $entries_per_tick = 10, int $sleep_time = 1) : AsyncForeachHandler{
 		$handler = new SimpleAsyncForeachHandler($iterable, $entries_per_tick);
-		$this->scheduler->scheduleDelayedRepeatingTask(new AsyncForeachTask($handler), 1, $sleep_time);
+		$task_handler = $this->scheduler->scheduleDelayedRepeatingTask(new AsyncForeachTask($handler), 1, $sleep_time);
+		$handler->init("Plugin: {$task_handler->getOwnerName()} Event: AsyncIterator");
 		return $handler;
 	}
 }
