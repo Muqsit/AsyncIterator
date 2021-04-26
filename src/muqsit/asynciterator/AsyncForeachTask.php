@@ -27,6 +27,7 @@ final class AsyncForeachTask extends Task{
 		$this->async_foreach_handler = $async_foreach_handler;
 	}
 
+
 	public function onRun(int $currentTick) : void{
 		if(!$this->async_foreach_handler->handle()){
 			$this->async_foreach_handler->doCompletion();
