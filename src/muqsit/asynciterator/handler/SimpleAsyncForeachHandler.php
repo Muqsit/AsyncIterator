@@ -8,8 +8,6 @@ use Closure;
 use Iterator;
 use muqsit\asynciterator\util\EmptyTimedClosure;
 use muqsit\asynciterator\util\KeyValueTimedClosure;
-use pocketmine\timings\TimingsHandler;
-use pocketmine\utils\Utils;
 
 /**
  * @phpstan-template TKey
@@ -111,17 +109,17 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	}
 
 	public function as(Closure $callback) : AsyncForeachHandler{
-		$this->callbacks[spl_object_id($callback)] = new KeyValueTimedClosure(new TimingsHandler("{$this->timings_parent_name}::as " . Utils::getNiceClosureName($callback)), $callback);
+		$this->callbacks[spl_object_id($callback)] = new KeyValueTimedClosure(AsyncForeachHandlerTimings::getTraverserTimings($this->timings_parent_name, $callback), $callback);
 		return $this;
 	}
 
 	public function onCompletion(Closure $callback) : AsyncForeachHandler{
-		$this->finalization_callbacks[self::COMPLETION_CALLBACKS][spl_object_id($callback)] = new EmptyTimedClosure(new TimingsHandler("{$this->timings_parent_name}::onCompletion " . Utils::getNiceClosureName($callback)), $callback);
+		$this->finalization_callbacks[self::COMPLETION_CALLBACKS][spl_object_id($callback)] = new EmptyTimedClosure(AsyncForeachHandlerTimings::getOnCompletionTimings($this->timings_parent_name, $callback), $callback);
 		return $this;
 	}
 
 	public function onInterruption(Closure $callback) : AsyncForeachHandler{
-		$this->finalization_callbacks[self::INTERRUPTION_CALLBACKS][spl_object_id($callback)] = new EmptyTimedClosure(new TimingsHandler("{$this->timings_parent_name}::onInterruption " . Utils::getNiceClosureName($callback)), $callback);
+		$this->finalization_callbacks[self::INTERRUPTION_CALLBACKS][spl_object_id($callback)] = new EmptyTimedClosure(AsyncForeachHandlerTimings::getOnInterruptionTimings($this->timings_parent_name, $callback), $callback);
 		return $this;
 	}
 

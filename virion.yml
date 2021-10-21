@@ -1,5 +1,8 @@
 name: AsyncIterator
 antigen: muqsit\asynciterator
-api: [4.0.0-BETA3]
-version: 1.1.1
+version: 1.1.2
 author: Muqsit
+
+# forgive me for not declaring "api" instead.
+# i promise to keep this virion updated throughout BETA release cycle of PM4
+php: 8.0.0
