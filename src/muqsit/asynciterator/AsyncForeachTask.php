@@ -8,15 +8,13 @@ use muqsit\asynciterator\handler\SimpleAsyncForeachHandler;
 use pocketmine\scheduler\Task;
 
 /**
- * @phpstan-template TKey
- * @phpstan-template TValue
+ * @template TKey
+ * @template TValue
  */
 final class AsyncForeachTask extends Task{
 
 	/**
-	 * @param SimpleAsyncForeachHandler $async_foreach_handler
-	 *
-	 * @phpstan-param SimpleAsyncForeachHandler<TKey, TValue> $async_foreach_handler
+	 * @param SimpleAsyncForeachHandler<TKey, TValue> $async_foreach_handler
 	 */
 	public function __construct(
 		private SimpleAsyncForeachHandler $async_foreach_handler

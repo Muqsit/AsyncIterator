@@ -11,9 +11,7 @@ final class EmptyTimedClosure{
 
 	/**
 	 * @param TimingsHandler $timings
-	 * @param Closure $closure
-	 *
-	 * @phpstan-param Closure() : void $closure
+	 * @param Closure() : void $closure
 	 */
 	public function __construct(
 		private TimingsHandler $timings,

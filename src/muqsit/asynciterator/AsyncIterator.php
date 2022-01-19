@@ -16,15 +16,10 @@ class AsyncIterator{
 	){}
 
 	/**
-	 * @param Iterator $iterable
-	 * @param int $entries_per_tick
-	 * @param int $sleep_time
-	 * @return AsyncForeachHandler
-	 *
-	 * @phpstan-template TKey
-	 * @phpstan-template TValue
-	 * @phpstan-param Iterator<TKey, TValue> $iterable
-	 * @phpstan-return AsyncForeachHandler<TKey, TValue>
+	 * @template TKey
+	 * @template TValue
+	 * @param Iterator<TKey, TValue> $iterable
+	 * @return AsyncForeachHandler<TKey, TValue>
 	 */
 	public function forEach(Iterator $iterable, int $entries_per_tick = 10, int $sleep_time = 1) : AsyncForeachHandler{
 		$handler = new SimpleAsyncForeachHandler($iterable, $entries_per_tick);

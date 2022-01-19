@@ -7,8 +7,8 @@ namespace muqsit\asynciterator\handler;
 use Closure;
 
 /**
- * @phpstan-template TKey
- * @phpstan-template TValue
+ * @template TKey
+ * @template TValue
  */
 interface AsyncForeachHandler{
 
@@ -17,11 +17,8 @@ interface AsyncForeachHandler{
 	 * the first being the key, and the second being the value,
 	 * and should return an {@see AsyncForeachResult} instance.
 	 *
-	 * @param Closure $callback
-	 * @return AsyncForeachHandler
-	 *
-	 * @phpstan-param Closure(TKey, TValue) : AsyncForeachResult $callback
-	 * @phpstan-return AsyncForeachHandler<TKey, TValue>
+	 * @param Closure(TKey, TValue) : AsyncForeachResult $callback
+	 * @return AsyncForeachHandler<TKey, TValue>
 	 */
 	public function as(Closure $callback) : self;
 
@@ -43,33 +40,24 @@ interface AsyncForeachHandler{
 	/**
 	 * Called after the foreach task is completed successfully.
 	 *
-	 * @param Closure $callback
-	 * @return AsyncForeachHandler
-	 *
-	 * @phpstan-param Closure() : void $callback
-	 * @phpstan-return AsyncForeachHandler<TKey, TValue>
+	 * @param Closure() : void $callback
+	 * @return AsyncForeachHandler<TKey, TValue>
 	 */
 	public function onCompletion(Closure $callback) : self;
 
 	/**
 	 * Called after the foreach task is interrupted.
 	 *
-	 * @param Closure $callback
-	 * @return AsyncForeachHandler
-	 *
-	 * @phpstan-param Closure() : void $callback
-	 * @phpstan-return AsyncForeachHandler<TKey, TValue>
+	 * @param Closure() : void $callback
+	 * @return AsyncForeachHandler<TKey, TValue>
 	 */
 	public function onInterruption(Closure $callback) : self;
 
 	/**
 	 * Called after the foreach task is either completed or interrupted.
 	 *
-	 * @param Closure $callback
-	 * @return AsyncForeachHandler
-	 *
-	 * @phpstan-param Closure() : void $callback
-	 * @phpstan-return AsyncForeachHandler<TKey, TValue>
+	 * @param Closure() : void $callback
+	 * @return AsyncForeachHandler<TKey, TValue>
 	 */
 	public function onCompletionOrInterruption(Closure $callback) : self;
 }

@@ -10,9 +10,9 @@ use muqsit\asynciterator\util\EmptyTimedClosure;
 use muqsit\asynciterator\util\KeyValueTimedClosure;
 
 /**
- * @phpstan-template TKey
- * @phpstan-template TValue
- * @phpstan-implements AsyncForeachHandler<TKey, TValue>
+ * @template TKey
+ * @template TValue
+ * @implements AsyncForeachHandler<TKey, TValue>
  */
 final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 
@@ -22,20 +22,12 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 
 	private string $timings_parent_name;
 
-	/**
-	 * @var KeyValueTimedClosure[]
-	 *
-	 * @phpstan-var array<KeyValueTimedClosure<TKey, TValue, AsyncForeachResult>>
-	 */
+	/** @var array<KeyValueTimedClosure<TKey, TValue, AsyncForeachResult>> */
 	private array $callbacks = [];
 
 	private int $finalization_type = self::COMPLETION_CALLBACKS;
 
-	/**
-	 * @var EmptyTimedClosure[][]
-	 *
-	 * @phpstan-var array<int, array<EmptyTimedClosure>>
-	 */
+	/** @var array<int, array<EmptyTimedClosure>>  */
 	private array $finalization_callbacks = [
 		self::COMPLETION_CALLBACKS => [],
 		self::INTERRUPTION_CALLBACKS => [],
@@ -43,10 +35,8 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	];
 
 	/**
-	 * @param Iterator $iterable
+	 * @param Iterator<TKey, TValue> $iterable
 	 * @param int $entries_per_tick
-	 *
-	 * @phpstan-param Iterator<TKey, TValue> $iterable
 	 */
 	public function __construct(
 		private Iterator $iterable,
@@ -77,10 +67,10 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	public function handle() : bool{
 		$per_run = $this->entries_per_tick;
 		while($this->iterable->valid()){
-			/** @phpstan-var TKey $key */
+			/** @var TKey $key */
 			$key = $this->iterable->key();
 
-			/** @phpstan-var TValue $value */
+			/** @var TValue $value */
 			$value = $this->iterable->current();
 
 			foreach($this->callbacks as $callback){

@@ -39,10 +39,8 @@ abstract class AsyncForeachResult{
 	}
 
 	/**
-	 * @param AsyncForeachHandler $handler
+	 * @param AsyncForeachHandler<mixed, mixed> $handler
 	 * @return bool
-	 *
-	 * @phpstan-param AsyncForeachHandler<mixed, mixed> $handler
 	 */
 	abstract public function handle(AsyncForeachHandler $handler) : bool;
 }
