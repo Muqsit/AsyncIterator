@@ -14,21 +14,16 @@ use pocketmine\timings\TimingsHandler;
  */
 final class KeyValueTimedClosure{
 
-	private TimingsHandler $timings;
-
-	/** @phpstan-var Closure(T, U) : V */
-	public Closure $closure;
-
 	/**
 	 * @param TimingsHandler $timings
 	 * @param Closure $closure
 	 *
 	 * @phpstan-param Closure(T, U) : V $closure
 	 */
-	public function __construct(TimingsHandler $timings, Closure $closure){
-		$this->timings = $timings;
-		$this->closure = $closure;
-	}
+	public function __construct(
+		private TimingsHandler $timings,
+		public Closure $closure
+	){}
 
 	/**
 	 * @param mixed $key
@@ -39,7 +34,7 @@ final class KeyValueTimedClosure{
 	 * @phpstan-param U $value
 	 * @phpstan-return V
 	 */
-	public function call($key, $value){
+	public function call(mixed $key, mixed $value) : mixed{
 		$this->timings->startTiming();
 		$return = ($this->closure)($key, $value);
 		$this->timings->stopTiming();

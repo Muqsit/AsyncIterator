@@ -9,21 +9,16 @@ use pocketmine\timings\TimingsHandler;
 
 final class EmptyTimedClosure{
 
-	private TimingsHandler $timings;
-
-	/** @phpstan-var Closure() : void */
-	public Closure $closure;
-
 	/**
 	 * @param TimingsHandler $timings
 	 * @param Closure $closure
 	 *
 	 * @phpstan-param Closure() : void $closure
 	 */
-	public function __construct(TimingsHandler $timings, Closure $closure){
-		$this->timings = $timings;
-		$this->closure = $closure;
-	}
+	public function __construct(
+		private TimingsHandler $timings,
+		public Closure $closure
+	){}
 
 	public function call() : void{
 		$this->timings->startTiming();

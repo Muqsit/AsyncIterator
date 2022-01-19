@@ -22,11 +22,6 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 
 	private string $timings_parent_name;
 
-	/** @phpstan-var Iterator<TKey, TValue> */
-	private Iterator $iterable;
-
-	private int $entries_per_tick;
-
 	/**
 	 * @var KeyValueTimedClosure[]
 	 *
@@ -53,9 +48,10 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	 *
 	 * @phpstan-param Iterator<TKey, TValue> $iterable
 	 */
-	public function __construct(Iterator $iterable, int $entries_per_tick){
-		$this->iterable = $iterable;
-		$this->entries_per_tick = $entries_per_tick;
+	public function __construct(
+		private Iterator $iterable,
+		private int $entries_per_tick
+	){
 		$iterable->rewind();
 	}
 

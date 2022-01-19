@@ -11,11 +11,9 @@ use pocketmine\scheduler\TaskScheduler;
 
 class AsyncIterator{
 
-	private TaskScheduler $scheduler;
-
-	public function __construct(TaskScheduler $scheduler){
-		$this->scheduler = $scheduler;
-	}
+	public function __construct(
+		private TaskScheduler $scheduler
+	){}
 
 	/**
 	 * @param Iterator $iterable
