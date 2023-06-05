@@ -39,8 +39,8 @@ final class SimpleAsyncForeachHandler implements AsyncForeachHandler{
 	 * @param int $entries_per_tick
 	 */
 	public function __construct(
-		private Iterator $iterable,
-		private int $entries_per_tick
+		readonly private Iterator $iterable,
+		readonly private int $entries_per_tick
 	){
 		$iterable->rewind();
 	}

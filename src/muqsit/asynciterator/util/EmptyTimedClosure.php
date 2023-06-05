@@ -14,8 +14,8 @@ final class EmptyTimedClosure{
 	 * @param Closure() : void $closure
 	 */
 	public function __construct(
-		private TimingsHandler $timings,
-		public Closure $closure
+		readonly private TimingsHandler $timings,
+		readonly public Closure $closure
 	){}
 
 	public function call() : void{

@@ -19,8 +19,8 @@ final class KeyValueTimedClosure{
 	 * @param Closure(T, U) : V $closure
 	 */
 	public function __construct(
-		private TimingsHandler $timings,
-		public Closure $closure
+		readonly private TimingsHandler $timings,
+		readonly public Closure $closure
 	){}
 
 	/**
