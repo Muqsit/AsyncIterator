@@ -1,0 +1,24 @@
+{
+    "name": "muqsit/asynciterator",
+    "description": "A virion that simplifies writing tasks that traverse iterators",
+    "type": "library",
+    "license": "GPL-3.0",
+    "require": {
+        "pocketmine/pocketmine-mp": "^5.0.0"
+    },
+    "autoload": {
+        "classmap": ["src"]
+    },
+    "authors": [
+        {
+            "name": "Muqsit",
+            "email": "notmuqsit@gmail.com"
+        }
+    ],
+    "extra": {
+        "virion": {
+            "spec": "3.0",
+            "namespace-root": "muqsit\\asynciterator"
+        }
+    }
+}
